@@ -1,0 +1,8 @@
+# Dependencies
+fastapi
+uvicorn
+litellm
+python-dotenv
+chromadb
+streamlit
+pandas

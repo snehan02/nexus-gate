@@ -1,0 +1,21 @@
+# Environments
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.pyre/
+
+# IDEs
+.vscode/
+.idea/
+settings.json
+
+# OS
+.DS_Store
+Thumbs.db
