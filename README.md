@@ -40,7 +40,7 @@ MOCK_AI=true  # Set to 'false' to use real LLM providers
 
 ---
 
-## 🚦 Running the Project
+## Running the Project
 
 ### Start the AI Gateway (FastAPI)
 The gateway handles incoming chat requests and applies governance logic.
@@ -71,7 +71,7 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/chat `
   -Body '{"user_id": "demo_user", "text": "Hello Nexus!", "priority": "standard"}'
 ```
 
-### cURL
+### CURL
 ```bash
 curl -X POST http://127.0.0.1:8000/v1/chat \
      -H "Content-Type: application/json" \
