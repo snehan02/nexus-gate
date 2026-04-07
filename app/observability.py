@@ -1,11 +1,15 @@
 import time
 import statistics
+import json
+import os
 from collections import deque
+from datetime import datetime
 
 # Metrics storage (in-memory mock for 2026 AI Gateway)
 model_latencies = {} # model_name -> deque of latencies
 CIRCUIT_THRESHOLD_MS = 1500 # If p99 > 1.5s, break
 MAX_HISTORY = 100
+LOG_FILE = "gateway.log"
 
 def record_metric(model_name: str, latency: float):
     """
@@ -16,7 +20,23 @@ def record_metric(model_name: str, latency: float):
     if model_name not in model_latencies:
         model_latencies[model_name] = deque(maxlen=MAX_HISTORY)
     model_latencies[model_name].append(latency)
-    print(f"📈 [METRIC] {model_name}: {latency*1000:.2f}ms")
+    # console log is fine, but dashboard needs the file
+
+def log_request(prompt: str, model: str, reason: str, latency_ms: float, cache_hit: bool):
+    """
+    Logs every request to a JSONL file for the dashboard.
+    """
+    entry = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "prompt_snippet": prompt[:50] + "..." if len(prompt) > 50 else prompt,
+        "model": model,
+        "reason": reason,
+        "latency_ms": round(latency_ms, 2),
+        "cache_hit": cache_hit
+    }
+    
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 def should_break_circuit(model_name: str) -> bool:
     """
@@ -55,3 +75,4 @@ def calculate_observability(start_time, end_time, total_tokens):
         "ttft": ttft,
         "tokens_per_sec": round(tokens_per_sec, 2)
     }
+

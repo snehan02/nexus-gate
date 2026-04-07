@@ -1,8 +1,10 @@
-# Dependencies
 fastapi
 uvicorn
 litellm
-python-dotenv
-chromadb
 streamlit
+sentence-transformers
+tiktoken
+python-dotenv
+scikit-learn
+numpy
 pandas

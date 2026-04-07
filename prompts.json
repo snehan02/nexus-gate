@@ -1,0 +1,22 @@
+[
+  {"id": 1, "prompt": "What is the capital of France?", "label": "simple"},
+  {"id": 2, "prompt": "How do I convert Celsius to Fahrenheit?", "label": "simple"},
+  {"id": 3, "prompt": "What does API stand for?", "label": "simple"},
+  {"id": 4, "prompt": "Give me a one-line summary of machine learning.", "label": "simple"},
+  {"id": 5, "prompt": "What year was Python created?", "label": "simple"},
+  {"id": 6, "prompt": "Translate hello to Spanish.", "label": "simple"},
+  {"id": 7, "prompt": "What is 2 to the power of 10?", "label": "simple"},
+  {"id": 8, "prompt": "List 3 types of databases.", "label": "simple"},
+  {"id": 9, "prompt": "What is the difference between HTTP and HTTPS?", "label": "simple"},
+  {"id": 10, "prompt": "Who created Linux?", "label": "simple"},
+  {"id": 11, "prompt": "Explain transformer architecture and compare it to LSTM networks in detail.", "label": "complex"},
+  {"id": 12, "prompt": "Write a Python function to implement binary search with full error handling.", "label": "complex"},
+  {"id": 13, "prompt": "Analyse why microservices architectures fail at scale and suggest three mitigations.", "label": "complex"},
+  {"id": 14, "prompt": "Compare REST and GraphQL APIs \u2014 when would you choose each and why?", "label": "complex"},
+  {"id": 15, "prompt": "Explain step by step how attention mechanisms work in transformers.", "label": "complex"},
+  {"id": 16, "prompt": "Debug this code and explain why it fails: def divide(x, y): return x/y", "label": "complex"},
+  {"id": 17, "prompt": "Design a rate limiter for an API \u2014 describe the algorithm and data structures needed.", "label": "complex"},
+  {"id": 18, "prompt": "What are the trade-offs between normalisation and denormalisation in relational databases?", "label": "complex"},
+  {"id": 19, "prompt": "Explain the CAP theorem and give a real-world example of each trade-off.", "label": "complex"},
+  {"id": 20, "prompt": "Write a regex to validate email addresses and explain every component of the pattern.", "label": "complex"}
+]

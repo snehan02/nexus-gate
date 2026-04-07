@@ -1,32 +1,61 @@
 import streamlit as st
 import pandas as pd
-import time
+import json
+import os
 
-st.set_page_config(page_title="Nexus-Gate Live Ops", layout="wide")
-st.title("🛡️ Nexus AI Gateway: Live Governance")
+st.set_page_config(page_title="Nexus-Gate Log Viewer", layout="wide", page_icon="🛡️")
 
-# Mock Data for Demo (Replace with your Gateway's /metrics endpoint in the future)
-metrics = {
-    "Total Requests": 1250,
-    "Cost Saved": "$42.30",
-    "Avg TTFT": "140ms",
-    "Security Blocks": 12
-}
+st.title("🛡️ Nexus-Gate: Gateway Log Viewer")
+st.markdown("Monitor real-time routing decisions, model assignments, and cache efficiency.")
 
-# Top KPI Cards
-cols = st.columns(4)
-cols[0].metric("Total Traffic", metrics["Total Requests"])
-cols[1].metric("Net Savings", metrics["Cost Saved"], "+15%")
-cols[2].metric("Performance (TTFT)", metrics["Avg TTFT"])
-cols[3].metric("Threats Blocked", metrics["Security Blocks"], "-2", delta_color="inverse")
+LOG_FILE = "gateway.log"
 
-# Live Savings Chart
-st.subheader("Financial ROI: Adaptive Triage vs. Flat-Rate Pro")
-chart_data = pd.DataFrame({
-    'Time': range(10),
-    'Flat-Rate Cost': [i * 0.5 for i in range(10)],
-    'Nexus-Gate Cost': [i * 0.12 for i in range(10)]
-})
-st.line_chart(chart_data, x="Time", y=["Flat-Rate Cost", "Nexus-Gate Cost"])
+def load_logs():
+    if not os.path.exists(LOG_FILE):
+        return pd.DataFrame()
+    
+    data = []
+    with open(LOG_FILE, "r") as f:
+        for line in f:
+            try:
+                data.append(json.loads(line))
+            except:
+                continue
+    return pd.DataFrame(data)
 
-st.success("System Status: HEALING MODE ACTIVE (Auto-failover to Gemini Enabled)")
+# Auto-refresh logic
+if st.button("🔄 Refresh Logs"):
+    st.rerun()
+
+logs = load_logs()
+
+if not logs.empty:
+    # Summary Metrics
+    total_reqs = len(logs)
+    cache_hits = len(logs[logs['cache_hit'] == True])
+    avg_latency = logs['latency_ms'].mean()
+    
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Requests", total_reqs)
+    col2.metric("Cache Hit Rate", f"{(cache_hits/total_reqs)*100:.1f}%")
+    col3.metric("Avg Latency", f"{avg_latency:.0f} ms")
+
+    # Log Table
+    st.subheader("Recent Request History")
+    # Reverse logs for latest first
+    st.dataframe(
+        logs.iloc[::-1], 
+        use_container_width=True,
+        column_config={
+            "timestamp": "Time",
+            "prompt_snippet": "Prompt",
+            "model": "Model Used",
+            "reason": "Routing Reason",
+            "latency_ms": st.column_config.NumberColumn("Latency (ms)", format="%d"),
+            "cache_hit": "Cache Hit?"
+        }
+    )
+else:
+    st.info("No logs found. Send some prompts to the gateway to see them here!")
+    st.code("curl -X POST http://localhost:8000/chat -H 'Content-Type: application/json' -d '{\"user_id\": \"test\", \"text\": \"hello\"}'")
+
