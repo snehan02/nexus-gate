@@ -22,7 +22,7 @@ def record_metric(model_name: str, latency: float):
     model_latencies[model_name].append(latency)
     # console log is fine, but dashboard needs the file
 
-def log_request(prompt: str, model: str, reason: str, latency_ms: float, cache_hit: bool):
+def log_request(prompt: str, model: str, reason: str, latency_ms: float, cache_hit: bool, metadata: dict = None):
     """
     Logs every request to a JSONL file for the dashboard.
     """
@@ -32,7 +32,8 @@ def log_request(prompt: str, model: str, reason: str, latency_ms: float, cache_h
         "model": model,
         "reason": reason,
         "latency_ms": round(latency_ms, 2),
-        "cache_hit": cache_hit
+        "cache_hit": cache_hit,
+        "metadata": metadata or {}
     }
     
     with open(LOG_FILE, "a") as f:

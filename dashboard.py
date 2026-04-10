@@ -40,17 +40,26 @@ if not logs.empty:
     col2.metric("Cache Hit Rate", f"{(cache_hits/total_reqs)*100:.1f}%")
     col3.metric("Avg Latency", f"{avg_latency:.0f} ms")
 
-    # Log Table
+# Log Table
     st.subheader("Recent Request History")
+    
+    # Process metadata for display
+    display_logs = logs.copy()
+    if 'metadata' in display_logs.columns:
+        display_logs['semantic_score'] = display_logs['metadata'].apply(lambda x: x.get('semantic_anchor', 'N/A') if isinstance(x, dict) else 'N/A')
+    else:
+        display_logs['semantic_score'] = 'N/A'
+    
     # Reverse logs for latest first
     st.dataframe(
-        logs.iloc[::-1], 
+        display_logs.iloc[::-1], 
         use_container_width=True,
         column_config={
             "timestamp": "Time",
             "prompt_snippet": "Prompt",
             "model": "Model Used",
             "reason": "Routing Reason",
+            "semantic_score": st.column_config.NumberColumn("Semantic Complexity", format="%.3f"),
             "latency_ms": st.column_config.NumberColumn("Latency (ms)", format="%d"),
             "cache_hit": "Cache Hit?"
         }

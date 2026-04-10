@@ -28,7 +28,7 @@ async def chat_gateway(payload: UserPrompt):
     cached = cache_check(safe_prompt)
     if cached:
         latency_ms = (time.time() - start_time) * 1000
-        log_request(safe_prompt, cached["model_used"], "Cache Hit", latency_ms, True)
+        log_request(safe_prompt, cached["model_used"], "Cache Hit", latency_ms, True, {"cache_similarity": cached.get("similarity")})
         return {
             "response": cached["response"],
             "model_used": cached["model_used"],
@@ -52,7 +52,7 @@ async def chat_gateway(payload: UserPrompt):
         llm_response = f"[MOCK RESPONSE] This is a simulated response from the {model_label} ({selected_model})."
         latency_ms = (time.time() - start_time) * 1000
         
-        log_request(safe_prompt, model_label, routing["reason"], latency_ms, False)
+        log_request(safe_prompt, model_label, routing["reason"], latency_ms, False, routing["features"])
         cache_store(safe_prompt, llm_response, model_label)
         
         return {
@@ -74,7 +74,7 @@ async def chat_gateway(payload: UserPrompt):
         
         # Record and Track
         record_metric(selected_model, end_time - start_time)
-        log_request(safe_prompt, model_label, routing["reason"], latency_ms, False)
+        log_request(safe_prompt, model_label, routing["reason"], latency_ms, False, routing["features"])
         
         llm_response = response.choices[0].message.content
         cache_store(safe_prompt, llm_response, model_label)

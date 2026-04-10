@@ -29,13 +29,13 @@ def cost_comparison(results: list) -> None:
     baseline_cost = sum(estimate_cost(r["prompt_full"], "capable")        for r in results)
     saving_pct    = (baseline_cost - smart_cost) / baseline_cost * 100 if baseline_cost > 0 else 0
 
-    print("\n" + "═" * 80)
+    print("\n" + "=" * 100)
     print("  COST EFFICIENCY ANALYSIS (Prompt-based Proxy)")
-    print("═" * 80)
+    print("=" * 100)
     print(f"  Always-Capable baseline : ${baseline_cost:.8f}")
     print(f"  Smart routing cost      : ${smart_cost:.8f}")
     print(f"  Estimated Saving        : {saving_pct:.1f}%")
-    print("─" * 80)
+    print("-" * 100)
 
 def run(path: str):
     with open(path) as f:
@@ -58,20 +58,21 @@ def run(path: str):
             "expected":    expected,
             "score":       decision["score"],
             "confidence":  decision["confidence"],
+            "semantic":    decision["features"].get("semantic_anchor", 0.0),
             "correct":     correct,
             "reason":      decision["reason"],
         })
 
     # ── Per-prompt output ────────────────────────────────────────────────────
-    print("\n" + "═" * 80)
+    print("\n" + "=" * 100)
     print("  NEXUS-GATE ROUTING MODEL — PoC EVALUATION")
-    print("═" * 80)
-    print(f"  {'ID':<4} {'LABEL':<10} {'ROUTED':<10} {'SCORE':<8} {'CONF':<8} {'OK?':<6} PROMPT")
-    print("─" * 80)
+    print("=" * 100)
+    print(f"  {'ID':<4} {'LABEL':<10} {'ROUTED':<10} {'SCORE':<8} {'CONF':<8} {'SEMANTIC':<10} {'OK?':<6} PROMPT")
+    print("-" * 100)
     for r in results:
-        ok = "✓" if r["correct"] else "✗"
+        ok = "PASS" if r["correct"] else "FAIL"
         print(f"  {r['id']:<4} {r['label']:<10} {r['routed_to']:<10} "
-              f"{r['score']:<8.3f} {r['confidence']:<8.3f} {ok:<6} {r['prompt']}")
+              f"{r['score']:<8.3f} {r['confidence']:<8.3f} {r['semantic']:<10.3f} {ok:<6} {r['prompt']}")
 
     # ── Summary ──────────────────────────────────────────────────────────────
     total   = len(results)
@@ -88,15 +89,15 @@ def run(path: str):
     fn_rate = fn / len(simple_items)  if simple_items  else 0
     accuracy = correct / total
 
-    print("\n" + "═" * 80)
+    print("\n" + "=" * 100)
     print("  SUMMARY")
-    print("═" * 80)
+    print("=" * 100)
     print(f"  Total prompts evaluated : {total}")
     print(f"  Correct routing         : {correct}/{total}  ({accuracy:.0%})")
-    print(f"  False positive rate     : {fp}/{len(complex_items)} complex→fast  ({fp_rate:.0%})  ← dangerous")
-    print(f"  False negative rate     : {fn}/{len(simple_items)} simple→capable ({fn_rate:.0%})  ← wasteful")
+    print(f"  False positive rate     : {fp}/{len(complex_items)} complex->fast  ({fp_rate:.0%})  <- dangerous")
+    print(f"  False negative rate     : {fn}/{len(simple_items)} simple->capable ({fn_rate:.0%})  <- wasteful")
     print(f"  Accuracy                : {accuracy:.0%}")
-    print("─" * 80)
+    print("-" * 100)
 
     # ── Cost Comparison ──────────────────────────────────────────────────────
     cost_comparison(results)
@@ -107,8 +108,8 @@ def run(path: str):
         print(f"\n  MIS-ROUTES ({len(wrong)} total):")
         for r in wrong:
             print(f"  [{r['id']}] Expected {r['expected']}, got {r['routed_to']} "
-                  f"(score={r['score']:.3f}): {r['prompt']}")
-    print("═" * 80 + "\n")
+                  f"(score={r['score']:.3f}, conf={r['confidence']:.3f}): {r['prompt']}")
+    print("=" * 100 + "\n")
 
     return accuracy
 
