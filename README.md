@@ -2,7 +2,7 @@
 
 Nexus-Gate is a research-grade LLM routing gateway that intelligently triages incoming prompts between a "Fast" model (Llama 3.1 8B via Groq) and a "Capable" model (Gemini 1.5 Flash via Google AI Studio). It includes a semantic cache to eliminate redundant compute and reduce latency.
 
-## 🚀 Quick Setup (3 Commands)
+## 🚀 Quick Setup (4 Commands)
 
 ```bash
 # 1. Install dependencies
@@ -13,6 +13,9 @@ cp .env.example .env
 
 # 3. Launch the dashboard
 streamlit run dashboard.py
+
+# 4. (New Terminal) Send sample data
+python send_batch.py
 ```
 
 ## 🧠 Routing Model Explained
@@ -22,12 +25,17 @@ The gateway uses a **feature-weighted rule-based complexity scorer** to decide w
 ### Feature Weights
 | Feature | Weight | Rationale |
 |---|---|---|
-| **Prompt Length** | 0.30 | Longer prompts often imply multi-step instructions or context. |
+| **Semantic Anchor** | **0.20** | **[NEW]** Compares prompt embeddings against known complex/simple examples. |
+| **Prompt Length** | 0.10 | Reduced from 0.30; length is a secondary proxy for complexity. |
 | **Question Words** | 0.25 | Keywords like *explain*, *analyse*, or *compare* require reasoning. |
 | **Code Flag** | 0.25 | Programming terms trigger the Capable model for safety. |
 | **Multi-Step Flag** | 0.20 | Words like *step-by-step* or *finally* indicate orchestration. |
 
 **Threshold:** `0.5`. If the weighted score is $\ge 0.5$, the prompt is routed to the **Capable Model**; otherwise, it goes to the **Fast Model**.
+
+### 🛡️ Escalation Rule
+To ensure reliability, Nexus-Gate includes a **low-confidence escalation** layer:
+- If the routing decision has a confidence score $< 0.20$ (i.e., the complexity score is near the threshold), the prompt is automatically forced to the **Capable Model** for safety.
 
 ## 📊 PoC Evaluation Report
 
@@ -65,7 +73,7 @@ Our cache implementation uses `all-MiniLM-L6-v2` embeddings for sub-millisecond 
 
 ### 5. Future Improvements
 If rebuilt today, I would implement the following enhancements:
-*   **Intent-Based Classification:** Move from keyword weights to a shallow neural network or linear classifier trained on prompt embeddings to better capture semantic complexity.
+*   ~~**Intent-Based Classification**~~ (**Implemented via Semantic Anchors**): Using `all-MiniLM-L6-v2` embeddings to capture semantic complexity beyond keyword matching.
 *   **Dynamic Thresholding:** Adjust the 0.5 threshold based on real-time latency or cost quotas to prioritize performance during peak times.
 *   **Feedback Loop:** Integrate a human-in-the-loop or LLM-as-a-judge system to flag and learn from any borderline mis-routes in production.
 

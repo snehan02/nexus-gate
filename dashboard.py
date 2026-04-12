@@ -46,14 +46,14 @@ if not logs.empty:
     # Process metadata for display
     display_logs = logs.copy()
     if 'metadata' in display_logs.columns:
-        display_logs['semantic_score'] = display_logs['metadata'].apply(lambda x: x.get('semantic_anchor', 'N/A') if isinstance(x, dict) else 'N/A')
+        display_logs['semantic_score'] = display_logs['metadata'].apply(lambda x: x.get('semantic_anchor', None) if isinstance(x, dict) else None)
     else:
-        display_logs['semantic_score'] = 'N/A'
+        display_logs['semantic_score'] = None
     
     # Reverse logs for latest first
     st.dataframe(
         display_logs.iloc[::-1], 
-        use_container_width=True,
+        width="stretch",
         column_config={
             "timestamp": "Time",
             "prompt_snippet": "Prompt",
